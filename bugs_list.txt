@@ -1,0 +1,15 @@
+missing features:
+- managing general inquiries: the model should be able to query the 
+    database without having a model number or name if it is a general question.
+- the history of the conversation needs to be saved in the session for context, 
+    and later into a database for review
+- better management of "unknown" requests: use the model and the 
+    prompt to generate a response.
+- replace "unknown" requests with "general inquiries", where the model 
+    generates a response, using the prompt, without querying the database.
+or general inquiry about cooper and hunter and their products (which needs RAG), and a general inquiry (which does not need RAG)
+
+so, the intents are as follow:
+    - greeting
+    - product information
+    - unknown
