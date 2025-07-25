@@ -13,3 +13,16 @@ so, the intents are as follow:
     - greeting
     - product information
     - unknown
+
+
+application flow:
+
+main.py calls agent.router.SupportAgent.handle_input with the user's input
+
+handle_input calls utils.query_analysis.analyze_query with user's input and self.history
+    analyze_query returns a json dictionary with intent, error_code, model_name, and model_number
+handle_input calls utils.schema.build_filters with model_name, model_number, and error_code_only as boolean
+    build_filters returns a dictionary of filters to be used in database
+handle_input calls retriever.pinecone_retriever.retrieve_relevant_chunks with the user's input and the built filters
+    retrieve_relevant_chunks queries the database and returns the resulting context chunks
+handle_input calls llm.openai_chain.generate_response with the user's input and the context chunks

@@ -38,7 +38,7 @@ def extract_model_name(text: str) -> Optional[str]:
 
 def extract_model_number(text: str) -> Optional[str]:
     text_upper = text.upper()
-    for model in KNOWN_MODELS:
+    for model in KNOWN_MODEL_NUMBERS:
         pattern = re.escape(model.upper())
         if re.search(rf'\b{pattern}\b', text_upper):
             return model
@@ -50,7 +50,7 @@ def analyze_query(user_input: str, memory: list) -> Dict[str, Optional[str]]:
     """
 
     # Simple pre-check for error codes and model names
-    error_code = extract_error_code(user_input)
+    # error_code = extract_error_code(user_input)
     model_name = extract_model_name(user_input)
     model_number = extract_model_number(user_input)
 
@@ -60,16 +60,17 @@ def analyze_query(user_input: str, memory: list) -> Dict[str, Optional[str]]:
             model_name = turn["model_name"]
         if not model_number and turn.get("model_number"):
             model_number = turn["model_number"]
-        if not error_code and turn.get("error_code"):
-            error_code = turn["error_code"]
-        if model_name and model_number and error_code:
+        # if not error_code and turn.get("error_code"):
+        #     error_code = turn["error_code"]
+        if model_name and model_number:
+            # and error_code
             break
 
     # Ask the model to classify the request
     system_prompt = "You are an AI that classifies customer support queries."
     analysis_prompt = (
         f"User query: {user_input}\n\n"
-        "Decide if this is a social interaction (includes greetings, farewells, pleasantries, small talk, etc.), a complete support question (including mentioning an error code), or a query that is missing information.\n"
+        "Decide if this is a social interaction (includes greetings, farewells, pleasantries, small talk, etc.), a complete support question, or a query that is missing information.\n"
         "Extract model name and model number if present.\n"
         "Return JSON with:\n"
         "- intent: social_interaction | support_question | unknown\n"
@@ -88,10 +89,12 @@ def analyze_query(user_input: str, memory: list) -> Dict[str, Optional[str]]:
     except Exception:
         parsed = {"intent": "unknown"}
 
+    print("intent: ", parsed.get("intent"))
+    print("model name: ", model_name)
     # Merge with pre-extracted values    
     return {
         "intent": parsed.get("intent", "unknown"),
-        "error_code": error_code,
+        # "error_code": error_code,
         "model_name": model_name,
         "model_number": model_number
     }

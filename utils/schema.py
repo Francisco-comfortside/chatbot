@@ -19,14 +19,14 @@ METADATA_FIELDS = [
 def build_filters(
     model_name: Optional[str] = None,
     model_number: Optional[str] = None,
-    error_code_only: bool = False
+    # error_code: Optional[str] = None
 ) -> Optional[Dict[str, Dict[str, str]]]:
-    if error_code_only:
-        return None  # No filtering for error code lookups
-
+    
     filters = {}
     if model_name:
-        filters["metadata.model_name"] = {"$eq": model_name}
+        filters["metadata.model_name"] = {"$eq": model_name.title()}
     if model_number:
-        filters["metadata.model_number"] = {"$eq": model_number}
+        filters["metadata.model_number"] = {"$in": model_number.upper()}
+    # if model_number:
+    #     filters["metadata.error_code"] = {"$eq": error_code}
     return filters or None
