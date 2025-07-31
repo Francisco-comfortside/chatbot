@@ -25,23 +25,7 @@ vectorstore = PineconeVectorStore(
     namespace = PINECONE_NAMESPACE
 )
 
-def retrieve_relevant_chunks(query: str, filters: Optional[dict] = {}, k: int = 3) -> List[str]:
-    print(f"Retrieving chunks for query: {query}")
-    """
-    Returns the top-k relevant content strings matching the query.
-    Applies metadata filters if provided.
-    """
-    results = vectorstore.similarity_search(
-        query=query,
-        k=k,
-        filter=filters 
-    )
-    print("filters: ", filters)
-    print(f"Found {len(results)} results")
-    return [r.page_content for r in results]
-
-
-def retrieve_direct(query: str, filters: Optional[dict] = None, k: int = 3) -> List[str]:
+def retrieve_relevant_chunks(query: str, filters: Optional[dict] = None, k: int = 3) -> List[str]:
     print(f"Retrieving chunks for query: {query}")
     openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -56,12 +40,9 @@ def retrieve_direct(query: str, filters: Optional[dict] = None, k: int = 3) -> L
         namespace=PINECONE_NAMESPACE,
         filter=filters
     )
-
-    print(response)
+    
     for match in response.matches:
         print(f"Score: {match.score}")
-        print(f"Title: {match.metadata.get('title')}")
-        print(f"Page: {match.metadata.get('page')}")
         print(f"Content: {match.metadata.get('content')}")
         print("-----")
 

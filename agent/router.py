@@ -12,14 +12,14 @@ class SupportAgent:
     def handle_input(self, user_input: str) -> str:
         # Step 1: Analyze the query and memory
         query_info = analyze_query(user_input, self.history.get_recent_turns())
-
+        
         intent = query_info["intent"]
         model_name = query_info["model_name"]
         model_number = query_info["model_number"]
-        # error_code = query_info["error_code"]
 
         # Step 2: Decide if RAG is required
         use_rag = intent == "support_question" and (model_name or model_number) 
+        
         if intent == "social_interaction":
             context_chunks = "Respond as a friendly assistant. This is a social message, not a support question."
             response = generate_response(user_input, context_chunks)
@@ -31,12 +31,11 @@ class SupportAgent:
             filters = build_filters(
                 model_name=model_name,
                 model_number=model_number,
-                # error_code=error_code
             )
-            print("filters from router: ", filters)
             # Step 4: Retrieve documents if needed
+            print(filters)
             context_chunks = retrieve_relevant_chunks(user_input, filters)
-
+            # context_chunks = retrieve_direct(user_input, filters) if use_rag else "No relevant documents found."
             # Step 5: Generate response
             response = generate_response(user_input, context_chunks)
 
@@ -47,7 +46,6 @@ class SupportAgent:
             user_intent=intent,
             model_name=model_name,
             model_number=model_number,
-            # error_code=error_code
         )
 
         return response
@@ -58,3 +56,4 @@ class SupportAgent:
         or save it to disk if you prefer.
         """
         return self.history.get_all_turns()
+    
