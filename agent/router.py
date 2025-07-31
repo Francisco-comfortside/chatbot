@@ -1,6 +1,6 @@
 from typing import Optional
 from utils.query_analysis import analyze_query
-from retriever.pinecone_retriever import retrieve_relevant_chunks, retrieve_direct
+from retriever.pinecone_retriever import retrieve_relevant_chunks
 from llm.openai_chain import generate_response
 from utils.schema import build_filters
 from agent.history import ChatHistory

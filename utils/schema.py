@@ -9,8 +9,8 @@ def build_filters(
     
     filters = {}
     if model_name:
-        filters["model_name"] = {"$in": model_name}
+        filters["model_name"] = {"$in": [model_name]}
     if model_number:
-        filters["model_number"] = {"$in": model_number}
-    
+        filters["model_number"] = {"$in": [model_number]}
+
     return filters or None
