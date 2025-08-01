@@ -1,7 +1,12 @@
 import streamlit as st
 import uuid
 import json
+import time
 from agent.router import SupportAgent
+from pinecone import Pinecone
+from openai import OpenAI
+from config import PINECONE_API_KEY, PINECONE_INDEX_NAME, OPENAI_API_KEY, PINECONE_FEEDBACK_NAMESPACE
+
 
 # Initialize agent and session state
 if "agent" not in st.session_state:
@@ -17,6 +22,22 @@ if "feedback_mode" not in st.session_state:
 
 if "feedback_submitted" not in st.session_state:
     st.session_state.feedback_submitted = False
+
+if "openai_client" not in st.session_state:
+    st.session_state.openai_client = OpenAI(api_key=OPENAI_API_KEY)
+
+if "pinecone_index" not in st.session_state:
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    if PINECONE_INDEX_NAME not in pc.list_indexes().names():
+        from pinecone import ServerlessSpec, CloudProvider, AwsRegion, VectorType
+        pc.create_index(
+            name=PINECONE_INDEX_NAME,
+            dimension=1536,
+            metric="cosine",
+            spec=ServerlessSpec(cloud=CloudProvider.AWS, region=AwsRegion.US_EAST_1),
+            vector_type=VectorType.DENSE,
+        )
+    st.session_state.pinecone_index = pc.Index(PINECONE_INDEX_NAME)
 
 # --- Streamlit App Title ---
 st.title("🔧 Comfortside Support Bot")
@@ -51,7 +72,6 @@ for i, turn in enumerate(st.session_state.chat_history):
                     st.session_state.feedback_type = "thumbs_down"
 
 # --- Feedback Box ---
-# --- Feedback Box ---
 if st.session_state.feedback_mode and not st.session_state.feedback_submitted:
     with st.form("feedback_form", clear_on_submit=True):
         st.write("**Leave a comment about this response:**")
@@ -69,31 +89,53 @@ if st.session_state.feedback_mode and not st.session_state.feedback_submitted:
                     for i, chunk in enumerate(chunks):
                         context_dict[f"chunk{i+1}"] = {
                             "id": chunk["id"],
-                            "score": float(chunk.get("score", 0)),
-                            "metadata": chunk.get("metadata", {}),
-                            "values": list(chunk.get("values", []))
+                            "score": float(chunk.get("score", 0))
                         }
                     return context_dict
 
                 raw_chunks = latest.get("context_chunks", [])
                 context_dict = serialize_context_chunks(raw_chunks) if isinstance(raw_chunks, list) else {"empty": "chunks not searched or not found."}
-
+                
+                client = st.session_state.openai_client
+                index = st.session_state.pinecone_index
+                print("Pinecone index initialized")  # Debugging line
+                # Generate embedding from feedback text
+                embedding_text = f"{st.session_state.feedback_type}: {comment.strip()}"
+                embedding_response = client.embeddings.create(
+                    model="text-embedding-3-small",  # or any embedding model you prefer
+                    input=[embedding_text]
+                )
+                vector = embedding_response.data[0].embedding
+                print("Embedding generated")  # Debugging line
+                # Create vector for Pinecone
+                vector_id = str(uuid.uuid4())
                 feedback_obj = {
-                    "id": str(uuid.uuid4()),
-                    "embedding": f"{st.session_state.feedback_type} | {comment.strip()}",
+                    "id": vector_id,
+                    "values": vector,
                     "metadata": {
                         "user_prompt": latest.get("user"),
                         "assistant_response": latest.get("bot"),
                         "user_intent": latest.get("user_intent"),
-                        "model_name": latest.get("model_name"),
-                        "model_number": latest.get("model_number"),
-                        "context_chunks": context_dict,
+                        "model_name": str(latest.get("model_name")),
+                        "model_number": str(latest.get("model_number")),
+                        "context_chunks": json.dumps(context_dict),
+                        "comment": comment.strip(),
+                        "feedback_type": st.session_state.feedback_type
                     },
                 }
-
-                with open("feedback_log.jsonl", "a") as f:
-                    f.write(json.dumps(feedback_obj) + "\n")
-
+                print("Feedback object created")
+                print(feedback_obj)
+                # Upsert to Pinecone
+                result = index.upsert(
+                    vectors=[{
+                        "id": feedback_obj["id"],
+                        "values": feedback_obj["values"],
+                        "metadata": feedback_obj["metadata"]
+                    }],
+                    namespace=PINECONE_FEEDBACK_NAMESPACE 
+                )
+                print("Upsert result:", result)
+                print("Feedback upserted to Pinecone")
                 st.success("✅ Feedback submitted!")
                 st.session_state.feedback_submitted = True
                 st.session_state.feedback_mode = False
