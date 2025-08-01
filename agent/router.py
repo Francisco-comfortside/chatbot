@@ -4,6 +4,7 @@ from retriever.pinecone_retriever import retrieve_relevant_chunks
 from llm.openai_chain import generate_response
 from utils.schema import build_filters
 from agent.history import ChatHistory
+import time
 
 class SupportAgent:
     def __init__(self):
@@ -16,14 +17,13 @@ class SupportAgent:
         intent = query_info["intent"]
         model_name = query_info["model_name"]
         model_number = query_info["model_number"]
-
         # Step 2: Decide if RAG is required
         use_rag = intent == "support_question" and (model_name or model_number) 
         
         if intent == "social_interaction":
             context_chunks = "Respond as a friendly assistant. This is a social message, not a support question."
             response = generate_response(user_input, context_chunks)
-        elif intent == "unknown" or (not use_rag):
+        elif intent == "unknown":
             context_chunks = "The user provided no or insufficient information to query the database. Tell the user to provide a detailed request."
             response = generate_response(user_input, context_chunks)
         else:
@@ -33,16 +33,17 @@ class SupportAgent:
                 model_number=model_number,
             )
             # Step 4: Retrieve documents if needed
-            print(filters)
             context_chunks = retrieve_relevant_chunks(user_input, filters)
-            # context_chunks = retrieve_direct(user_input, filters) if use_rag else "No relevant documents found."
-            # Step 5: Generate response
-            response = generate_response(user_input, context_chunks)
+            contents = [chunk.metadata.get("content", "") for chunk in context_chunks]
 
+            # Step 5: Generate response
+            response = generate_response(user_input, contents)
+            print(context_chunks)
         # Step 6: Save turn to memory
         self.history.add_turn(
             user=user_input,
             bot=response,
+            context_chunks=context_chunks,
             user_intent=intent,
             model_name=model_name,
             model_number=model_number,

@@ -25,7 +25,7 @@ vectorstore = PineconeVectorStore(
     namespace = PINECONE_NAMESPACE
 )
 
-def retrieve_relevant_chunks(query: str, filters: Optional[dict] = None, k: int = 3) -> List[str]:
+def retrieve_relevant_chunks(query: str, filters: Optional[dict] = None, k: int = 5) -> List[str]:
     print(f"Retrieving chunks for query: {query}")
     openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -40,12 +40,7 @@ def retrieve_relevant_chunks(query: str, filters: Optional[dict] = None, k: int 
         namespace=PINECONE_NAMESPACE,
         filter=filters
     )
-    
-    for match in response.matches:
-        print(f"Score: {match.score}")
-        print(f"Content: {match.metadata.get('content')}")
-        print("-----")
 
     return [
-        match.metadata.get("content", "") for match in response.matches
+        match for match in response.matches
     ]

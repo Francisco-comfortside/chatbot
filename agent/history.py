@@ -9,12 +9,14 @@ class ChatHistory:
         user: str,
         bot: str,
         user_intent: str,
+        context_chunks: Optional[list[Dict]] = None,
         model_name: Optional[str] = None,
         model_number: Optional[str] = None,
     ):
         self.turns.append({
             "user": user,
             "bot": bot,
+            "context_chunks": context_chunks,
             "user_intent": user_intent,
             "model_name": model_name,
             "model_number": model_number,

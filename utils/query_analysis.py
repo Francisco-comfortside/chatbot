@@ -75,7 +75,6 @@ def analyze_query(user_input: str, memory: list) -> Dict[str, Optional[str]]:
     # Merge with pre-extracted values    
     return {
         "intent": parsed.get("intent", "unknown"),
-        # "error_code": error_code,
         "model_name": model_name,
         "model_number": model_number
     }
