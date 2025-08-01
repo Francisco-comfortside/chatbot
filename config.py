@@ -14,6 +14,9 @@ PINECONE_FEEDBACK_NAMESPACE = os.getenv("PINECONE_FEEDBACK_NAMESPACE")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = "gpt-4o-mini"
 
+# Password for Streamlit app
+STREAMLIT_PASSWORD = os.getenv("STREAMLIT_PASSWORD")
+
 # System prompt 
 SYSTEM_PROMPT = """
 Comfortside LLC AI Agent Prompt
