@@ -60,7 +60,7 @@ if "pinecone_index" not in st.session_state:
 
 # --- Streamlit App Title ---
 st.set_page_config(page_title="Comfortside AI Agent", page_icon="🤖", layout="centered")
-st.title("Comfortside AI Support.\nType your question below.")
+st.title("Comfortside AI Support.\nType your question below.\n\n")
 
 # --- Chat UI ---
 user_input = st.chat_input("Ask a question about your unit...")

@@ -25,6 +25,10 @@ class SupportAgent:
             response = generate_response(user_input, context_chunks)
         elif intent == "unknown":
             context_chunks = "The user provided no or insufficient information to query the database. Tell the user to provide a detailed request."
+            if model_name is not None:
+                context_chunks += f" The user mentioned the model: {model_name}."
+            if model_number is not None:
+                context_chunks += f" The user mentioned the model number: {model_number}."
             response = generate_response(user_input, context_chunks)
         else:
             # Step 3: Build filters
