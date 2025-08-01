@@ -17,7 +17,10 @@ OPENAI_MODEL = "gpt-4o-mini"
 # Password for Streamlit app
 STREAMLIT_PASSWORD = os.getenv("STREAMLIT_PASSWORD")
 
-# System prompt 
+# Email settings
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
+
+# System prompt
 SYSTEM_PROMPT = """
 Comfortside LLC AI Agent Prompt
 Introduction and Setup:
