@@ -40,7 +40,8 @@ if "pinecone_index" not in st.session_state:
     st.session_state.pinecone_index = pc.Index(PINECONE_INDEX_NAME)
 
 # --- Streamlit App Title ---
-st.title("🔧 Comfortside Support Bot")
+st.set_page_config(page_title="Comfortside AI Agent", page_icon="🤖", layout="centered")
+st.title("Comfortside AI Support.\nType your question below.")
 
 # --- Chat UI ---
 user_input = st.chat_input("Ask a question about your unit...")
