@@ -18,19 +18,19 @@ class SupportAgent:
         model_name = query_info["model_name"]
         model_number = query_info["model_number"]
         # Step 2: Decide if RAG is required
-        use_rag = intent == "support_question" and (model_name or model_number) 
+        use_rag = intent in {"follow_up_question", "support_question"} and bool(model_name or model_number)        
         
         if intent == "social_interaction":
             context_chunks = "Respond as a friendly assistant. This is a social message, not a support question."
             response = generate_response(user_input, context_chunks)
         elif intent == "unknown":
             context_chunks = "The user provided no or insufficient information to query the database. Tell the user to provide a detailed request."
-            if model_name is not None:
+            if model_name:
                 context_chunks += f" The user mentioned the model: {model_name}."
-            if model_number is not None:
+            if model_number:
                 context_chunks += f" The user mentioned the model number: {model_number}."
             response = generate_response(user_input, context_chunks)
-        else:
+        elif use_rag:
             # Step 3: Build filters
             filters = build_filters(
                 model_name=model_name,
@@ -42,7 +42,12 @@ class SupportAgent:
 
             # Step 5: Generate response
             response = generate_response(user_input, contents)
-            print(context_chunks)
+            print(f"Search parameters:\nIntent: {intent}\nFilters: {filters}\nContext Chunks: {context_chunks}\n")
+        else:
+            # Fallback if intent is known but RAG isn't applicable (e.g., missing model info)
+            context_chunks = "The request could not be answered due to missing model name or number. Please specify one."
+            response = generate_response(user_input, context_chunks)
+            print("elsed.")
         # Step 6: Save turn to memory
         self.history.add_turn(
             user=user_input,
