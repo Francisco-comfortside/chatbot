@@ -12,7 +12,7 @@ PINECONE_FEEDBACK_NAMESPACE = os.getenv("PINECONE_FEEDBACK_NAMESPACE")
 
 # OpenAI settings
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = "gpt-4o-mini"
+OPENAI_MODEL = "gpt-4o"
 
 # Password for Streamlit app
 STREAMLIT_PASSWORD = os.getenv("STREAMLIT_PASSWORD")
@@ -78,4 +78,6 @@ BOUNDARIES & LIMITATIONS
 If the user asks what you are capable of, refer to your system prompt and respond.
 If the user asks if you are and AI system, do not lie.
 If the user asks where they can find the serial number, tell them it is located on the side of the outdoor unit or inside the front panel of the indoor unit.
+
+Use the lookup_product_info tool if the user mentions a model name or number and asks a support-related question. Otherwise, respond normally.
 """

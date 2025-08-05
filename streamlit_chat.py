@@ -170,7 +170,7 @@ if st.session_state.feedback_mode and not st.session_state.feedback_submitted:
                     )
 
                     msg = write_email(
-                        f"ID: {feedback_obj['id']}\nFeedback Type: {st.session_state.feedback_type}\nComment: {comment}\n\nUser Prompt: {latest.get('user')}\nAssistant Response: {latest.get('bot')}"
+                        f"ID: {feedback_obj['id']}\nFeedback Type: {st.session_state.feedback_type}\nComment: {comment}\n\nUser Prompt:\n{latest.get('user')}\n\nAssistant Response:\n{latest.get('bot')}"
                     )
                     sender = "francisco.pages2025@gmail.com"
                     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
