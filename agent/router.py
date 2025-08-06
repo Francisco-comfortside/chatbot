@@ -8,7 +8,7 @@ from retriever.pinecone_retriever import retrieve_relevant_chunks
 from config import SYSTEM_PROMPT
 from llm.openai_chain import call_openai_with_tools, followup_with_tool_response
 from agent.tools.product_info import query_product_info
-
+from agent.tools.warranty_info import query_warranty_info
 
 class SupportAgent:
     def __init__(self):
@@ -40,6 +40,22 @@ class SupportAgent:
 
                 if tool_name == "query_product_info":
                     tool_result = query_product_info(**tool_args)
+                    chunks = tool_result.get("context_chunks", [])
+                    answer = tool_result.get("final_answer", "")
+
+                    # Track all chunks for this turn
+                    context_chunks.extend(chunks)
+
+                    # Save tool output message
+                    tool_messages.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "content": answer
+                    })
+
+                    tool_results_combined += f"\n\n{answer}"
+                if tool_name == "query_warranty_info":
+                    tool_result = query_warranty_info(**tool_args)
                     chunks = tool_result.get("context_chunks", [])
                     answer = tool_result.get("final_answer", "")
 

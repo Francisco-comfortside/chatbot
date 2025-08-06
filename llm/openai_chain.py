@@ -60,6 +60,20 @@ tools = [
                 "required": ["question"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "query_warranty_info",
+            "description": "Retrieve general warranty policy information from the database. Applies to all products.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "string", "description": "The user's warranty question"},
+                },
+                "required": ["question"]
+            }
+        }
     }
 ]
 
