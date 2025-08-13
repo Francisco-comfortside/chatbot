@@ -34,6 +34,20 @@ tools = [
                 "required": ["question"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "query_troubleshooting_info",
+            "description": "Retrieve troubleshootin information from the database. This could include error codes and other ac troubleshooting related problems.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "string", "description": "The user's troubleshooting question"},
+                },
+                "required": ["question"]
+            }
+        }
     }
 ]
 
