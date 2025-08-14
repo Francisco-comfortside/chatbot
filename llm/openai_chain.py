@@ -44,6 +44,7 @@ tools = [
                 "type": "object",
                 "properties": {
                     "question": {"type": "string", "description": "The user's error code or related question"},
+                    # "error_code": {"type": "string", "description": "The code specifying the error."},
                 },
                 "required": ["question"]
             }

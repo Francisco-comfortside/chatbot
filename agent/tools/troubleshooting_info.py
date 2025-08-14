@@ -2,7 +2,7 @@ from typing import Optional
 from utils.schema import build_filters
 from retriever.pinecone_retriever import retrieve_relevant_chunks
 
-def query_troubleshooting_info(question: str) -> dict:
+def query_errorcode_info(question: str) -> dict:
     print("Tool called: query_errorcode_info")
     filters = {"data_origin": {"$eq": "error codes"}}
     chunks = retrieve_relevant_chunks(question, filters)
