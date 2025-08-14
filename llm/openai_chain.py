@@ -38,12 +38,12 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "query_troubleshooting_info",
-            "description": "Retrieve troubleshootin information from the database. This could include error codes and other ac troubleshooting related problems.",
+            "name": "query_errorcode_info",
+            "description": "Retrieve error code information from the database. This could include error codes or descriptions of error codes.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "question": {"type": "string", "description": "The user's troubleshooting question"},
+                    "question": {"type": "string", "description": "The user's error code or related question"},
                 },
                 "required": ["question"]
             }

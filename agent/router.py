@@ -6,7 +6,7 @@ from config import SYSTEM_PROMPT
 from llm.openai_chain import call_openai_with_tools, followup_with_tool_response
 from agent.tools.product_info import query_product_info
 from agent.tools.warranty_info import query_warranty_info
-from agent.tools.troubleshooting_info import query_troubleshooting_info
+from agent.tools.troubleshooting_info import query_errorcode_info
 
 class SupportAgent:
     def __init__(self):
@@ -41,8 +41,8 @@ class SupportAgent:
                     tool_result = query_product_info(**tool_args)
                 elif tool_name == "query_warranty_info":
                     tool_result = query_warranty_info(**tool_args)
-                elif tool_name == "query_troubleshooting_info":
-                    tool_result = query_troubleshooting_info(**tool_args)
+                elif tool_name == "query_errorcode_info":
+                    tool_result = query_errorcode_info(**tool_args)
                 else:
                     tool_result = {
                         "final_answer": f"Tool '{tool_name}' is not implemented.",
