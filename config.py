@@ -22,6 +22,9 @@ STREAMLIT_PASSWORD = os.getenv("STREAMLIT_PASSWORD")
 # Email settings
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
 
+# NGROK api key
+NGROK_API_KEY = os.getenv("NGROK_API_KEY")
+
 # System prompt
 SYSTEM_PROMPT = """
 Comfortside LLC AI Agent Prompt
