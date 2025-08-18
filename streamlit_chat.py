@@ -12,23 +12,23 @@ from voice.voice_recognition import VoiceHandler
 import io
 
 # --- Password Gate ---
-# def check_password():
-#     def password_entered():
-#         if st.session_state["password"] == STREAMLIT_PASSWORD:
-#             st.session_state["password_correct"] = True
-#             del st.session_state["password"]  # Optional: clear password after auth
-#         else:
-#             st.session_state["password_correct"] = False
+def check_password():
+    def password_entered():
+        if st.session_state["password"] == STREAMLIT_PASSWORD:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Optional: clear password after auth
+        else:
+            st.session_state["password_correct"] = False
 
-#     if "password_correct" not in st.session_state:
-#         st.text_input("Enter password:", type="password", on_change=password_entered, key="password")
-#         st.stop()
-#     elif not st.session_state["password_correct"]:
-#         st.text_input("Enter password:", type="password", on_change=password_entered, key="password")
-#         st.error("❌ Incorrect password")
-#         st.stop()
+    if "password_correct" not in st.session_state:
+        st.text_input("Enter password:", type="password", on_change=password_entered, key="password")
+        st.stop()
+    elif not st.session_state["password_correct"]:
+        st.text_input("Enter password:", type="password", on_change=password_entered, key="password")
+        st.error("❌ Incorrect password")
+        st.stop()
 
-# check_password()  # 🛑 Prevent rest of the app from loading if password is wrong
+check_password()  # 🛑 Prevent rest of the app from loading if password is wrong
 
 def write_email(body):
     # Prepare email content
