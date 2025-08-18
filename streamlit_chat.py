@@ -8,26 +8,27 @@ from openai import OpenAI
 from config import PINECONE_API_KEY, PINECONE_INDEX_NAME, OPENAI_API_KEY, PINECONE_FEEDBACK_NAMESPACE, STREAMLIT_PASSWORD, GMAIL_APP_PASSWORD
 import smtplib
 from email.message import EmailMessage
-
+from voice.voice_recognition import VoiceHandler
+import io
 
 # --- Password Gate ---
-def check_password():
-    def password_entered():
-        if st.session_state["password"] == STREAMLIT_PASSWORD:
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Optional: clear password after auth
-        else:
-            st.session_state["password_correct"] = False
+# def check_password():
+#     def password_entered():
+#         if st.session_state["password"] == STREAMLIT_PASSWORD:
+#             st.session_state["password_correct"] = True
+#             del st.session_state["password"]  # Optional: clear password after auth
+#         else:
+#             st.session_state["password_correct"] = False
 
-    if "password_correct" not in st.session_state:
-        st.text_input("Enter password:", type="password", on_change=password_entered, key="password")
-        st.stop()
-    elif not st.session_state["password_correct"]:
-        st.text_input("Enter password:", type="password", on_change=password_entered, key="password")
-        st.error("❌ Incorrect password")
-        st.stop()
+#     if "password_correct" not in st.session_state:
+#         st.text_input("Enter password:", type="password", on_change=password_entered, key="password")
+#         st.stop()
+#     elif not st.session_state["password_correct"]:
+#         st.text_input("Enter password:", type="password", on_change=password_entered, key="password")
+#         st.error("❌ Incorrect password")
+#         st.stop()
 
-check_password()  # 🛑 Prevent rest of the app from loading if password is wrong
+# check_password()  # 🛑 Prevent rest of the app from loading if password is wrong
 
 def write_email(body):
     # Prepare email content
@@ -90,6 +91,21 @@ if user_input:
         st.session_state.feedback_type = None
         st.session_state.comment = ""
         st.session_state.feedback_submitted = False
+
+# audio_input = st.audio_input("🎤", label_visibility="collapsed")
+# if audio_input:
+#     voice = VoiceHandler()
+#     audio_bytes = audio_input.read()  # get bytes
+#     text_input = voice.transcribe_audio(audio_bytes)
+#     with st.spinner("Thinking..."):
+#         response = st.session_state.agent.handle_input(text_input)
+#         st.session_state.chat_history.append({"user": text_input, "bot": response})
+#         # Reset feedback state for new turn
+#         st.session_state.feedback_mode = False
+#         st.session_state.feedback_type = None
+#         st.session_state.comment = ""
+#         st.session_state.feedback_submitted = False
+
 # --- Display Chat History ---
 for i, turn in enumerate(st.session_state.chat_history):
     with st.chat_message("user"):
@@ -103,82 +119,86 @@ for i, turn in enumerate(st.session_state.chat_history):
                 if st.button("👍", key="thumbs_up"):
                     st.session_state.feedback_mode = True
                     st.session_state.feedback_type = "thumbs_up"
+                st.text("Pretty good!")
             with col2:
                 if st.button("👎", key="thumbs_down"):
                     st.session_state.feedback_mode = True
                     st.session_state.feedback_type = "thumbs_down"
+                st.text("Needs work.")
+
+
+
+# # --- Chat UI ---
+# # Place text input and file uploader side by side
+# col1, col2 = st.columns([4, 1])
+# with col1:
+#     text_input = st.chat_input("Ask a question about your unit...", key="chat_input")
+# with col2:
+#     audio_input = st.audio_input("🎤", label_visibility="collapsed")
+
 
 # --- Feedback Box ---
-if st.session_state.feedback_mode and not st.session_state.feedback_submitted:
-    with st.form("feedback_form", clear_on_submit=True):
-        st.write("**Leave a comment about this response:**")
-        comment = st.text_area("Comment", value=st.session_state.comment)
-        submitted = st.form_submit_button("SEND")
-        if submitted:
-            if comment.strip() == "":
-                st.warning("Comment cannot be empty.")
-            else:
-                with st.spinner("Sending feedback..."):
-                    recent_turns = st.session_state.agent.history.get_recent_turns()
-                    latest = recent_turns[-1] if recent_turns else {}
+if st.session_state.feedback_mode:
+    with st.spinner("Please wait. Sending feedback..."):
+        recent_turns = st.session_state.agent.history.get_recent_turns()
+        latest = recent_turns[-1] if recent_turns else {}
 
-                    def serialize_context_chunks(chunks):
-                        context_dict = {}
-                        for i, chunk in enumerate(chunks):
-                            context_dict[f"chunk{i+1}"] = {
-                                "id": chunk["id"],
-                                "score": float(chunk.get("score", 0))
-                            }
-                        return context_dict
+        def serialize_context_chunks(chunks):
+            context_dict = {}
+            for i, chunk in enumerate(chunks):
+                context_dict[f"chunk{i+1}"] = {
+                    "id": chunk["id"],
+                    "score": float(chunk.get("score", 0))
+                }
+            return context_dict
 
-                    raw_chunks = latest.get("context_chunks", [])
-                    context_dict = serialize_context_chunks(raw_chunks) if isinstance(raw_chunks, list) else {"empty": "chunks not searched or not found."}
+        raw_chunks = latest.get("context_chunks", [])
+        context_dict = serialize_context_chunks(raw_chunks) if isinstance(raw_chunks, list) else {"empty": "chunks not searched or not found."}
 
-                    client = st.session_state.openai_client
-                    index = st.session_state.pinecone_index
+        client = st.session_state.openai_client
+        index = st.session_state.pinecone_index
 
-                    embedding_text = f"{st.session_state.feedback_type}: {comment.strip()}"
-                    embedding_response = client.embeddings.create(
-                        model="text-embedding-3-small",
-                        input=[embedding_text]
-                    )
-                    vector = embedding_response.data[0].embedding
+        embedding_text = f"{st.session_state.feedback_type}: {latest.get('user')}"
+        embedding_response = client.embeddings.create(
+            model="text-embedding-3-small",
+            input=[embedding_text]
+        )
+        vector = embedding_response.data[0].embedding
 
-                    vector_id = str(uuid.uuid4())
-                    feedback_obj = {
-                        "id": vector_id,
-                        "values": vector,
-                        "metadata": {
-                            "user_prompt": latest.get("user"),
-                            "assistant_response": latest.get("bot"),
-                            "user_intent": latest.get("user_intent"),
-                            "model_name": str(latest.get("model_name")),
-                            "model_number": str(latest.get("model_number")),
-                            "context_chunks": json.dumps(context_dict),
-                            "comment": comment.strip(),
-                            "feedback_type": st.session_state.feedback_type
-                        },
-                    }
+        vector_id = str(uuid.uuid4())
+        feedback_obj = {
+            "id": vector_id,
+            "values": vector,
+            "metadata": {
+                "user_prompt": latest.get("user"),
+                "assistant_response": latest.get("bot"),
+                "user_intent": latest.get("user_intent"),
+                "model_name": str(latest.get("model_name")),
+                "model_number": str(latest.get("model_number")),
+                "context_chunks": json.dumps(context_dict),
+                "feedback_type": st.session_state.feedback_type
+            },
+        }
 
-                    result = index.upsert(
-                        vectors=[{
-                            "id": feedback_obj["id"],
-                            "values": feedback_obj["values"],
-                            "metadata": feedback_obj["metadata"]
-                        }],
-                        namespace=PINECONE_FEEDBACK_NAMESPACE 
-                    )
+        result = index.upsert(
+            vectors=[{
+                "id": feedback_obj["id"],
+                "values": feedback_obj["values"],
+                "metadata": feedback_obj["metadata"]
+            }],
+            namespace=PINECONE_FEEDBACK_NAMESPACE 
+        )
 
-                    msg = write_email(
-                        f"ID: {feedback_obj['id']}\nFeedback Type: {st.session_state.feedback_type}\nComment: {comment}\n\nUser Prompt:\n{latest.get('user')}\n\nAssistant Response:\n{latest.get('bot')}"
-                    )
-                    sender = "francisco.pages2025@gmail.com"
-                    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-                        smtp.login(sender, GMAIL_APP_PASSWORD)
-                        smtp.send_message(msg)
+        msg = write_email(
+            f"ID: {feedback_obj['id']}\nFeedback Type: {st.session_state.feedback_type}\n\nUser Prompt:\n{latest.get('user')}\n\nAssistant Response:\n{latest.get('bot')}"
+        )
+        sender = "francisco.pages2025@gmail.com"
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            smtp.login(sender, GMAIL_APP_PASSWORD)
+            smtp.send_message(msg)
 
-                    st.success("✅ Feedback submitted!")
-                    st.session_state.feedback_submitted = True
-                    st.session_state.feedback_mode = False
-                    st.session_state.feedback_type = None
-                    st.session_state.comment = ""
+        st.success("✅ Feedback submitted!")
+        st.session_state.feedback_submitted = True
+        st.session_state.feedback_mode = False
+        st.session_state.feedback_type = None
+        st.session_state.comment = ""

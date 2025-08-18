@@ -25,7 +25,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "query_warranty_info",
-            "description": "Retrieve general warranty policy information from the database. Applies to all products.",
+            "description": "Search general warranty policy information from the database. Applies to all products.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -39,7 +39,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "query_errorcode_info",
-            "description": "Retrieve error code information from the database. This could include error codes or descriptions of error codes.",
+            "description": "Search error code information from the database. This could include error codes or descriptions of error codes.",
             "parameters": {
                 "type": "object",
                 "properties": {

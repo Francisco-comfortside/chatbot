@@ -13,6 +13,8 @@ PINECONE_FEEDBACK_NAMESPACE = os.getenv("PINECONE_FEEDBACK_NAMESPACE")
 # OpenAI settings
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = "gpt-4o"
+OPENAI_STT_MODEL = "gpt-4o-transcribe"
+OPENAI_TTS_MODEL = "gpt-4o-mini-tts"
 
 # Password for Streamlit app
 STREAMLIT_PASSWORD = os.getenv("STREAMLIT_PASSWORD")
