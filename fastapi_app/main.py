@@ -16,7 +16,7 @@ async def webhook(request: Request):
     payload = data.get("payload", {})
 
     # Choose which field to pass to handle_input
-    user_input = payload.get("query")  # or "user_message" depending on your workflow
+    user_input = payload.get("user_message")  # or "user_message" depending on your workflow
 
     if not user_input:
         return {
@@ -24,7 +24,7 @@ async def webhook(request: Request):
                 "success": False,
                 "context": ""
             },
-            "agent_message": "No query found in payload."
+            "agent_message": "No user_message found in payload."
         }
 
 
