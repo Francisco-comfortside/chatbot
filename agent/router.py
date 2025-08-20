@@ -8,13 +8,13 @@ from agent.tools.product_info import query_product_info
 from agent.tools.warranty_info import query_warranty_info
 from agent.tools.troubleshooting_info import query_errorcode_info
 
+
 class SupportAgent:
     def __init__(self):
         self.history = ChatHistory()
 
     def handle_input(self, user_input: str) -> str:
-        analysis = analyze_query(user_input, self.history.get_all_turns())
-
+        # analysis = analyze_query(user_input, self.history.get_all_turns())
         system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
         messages = [system_prompt] + self.history.get_as_openai_format()
         messages.append({"role": "user", "content": user_input})
@@ -86,9 +86,9 @@ class SupportAgent:
         self.history.add_turn(
             user=user_input,
             bot=final_message,
-            user_intent=analysis["intent"],
-            model_name=analysis["model_name"],
-            model_number=analysis["model_number"],
+            # user_intent=analysis["intent"],
+            # model_name=analysis["model_name"],
+            # model_number=analysis["model_number"],
             response_type=response_type,
             tool_call=tool_calls,
             context_chunks=context_chunks

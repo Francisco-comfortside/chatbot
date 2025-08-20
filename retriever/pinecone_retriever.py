@@ -5,6 +5,7 @@ from openai import OpenAI
 from config import PINECONE_API_KEY, PINECONE_INDEX_NAME, OPENAI_API_KEY, PINECONE_NAMESPACE
 from pinecone import Pinecone, ServerlessSpec
 
+
 pc = Pinecone(
     api_key=PINECONE_API_KEY,
 )
@@ -25,7 +26,7 @@ vectorstore = PineconeVectorStore(
     namespace = PINECONE_NAMESPACE
 )
 
-def retrieve_relevant_chunks(query: str, filters: Optional[dict] = None, k: int = 5) -> List[str]:
+def retrieve_relevant_chunks(query: str, filters: Optional[dict] = None, k: int = 3) -> List[str]:
     print(f"Retrieving chunks for query: {query}")
     openai_client = OpenAI(api_key=OPENAI_API_KEY)
 

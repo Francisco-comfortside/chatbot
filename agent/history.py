@@ -8,7 +8,7 @@ class ChatHistory:
         self,
         user: str,
         bot: str,
-        user_intent: str,
+        # user_intent: str,
         context_chunks: Optional[List[Dict]] = None,
         model_name: Optional[str] = None,
         model_number: Optional[str] = None,
@@ -18,7 +18,7 @@ class ChatHistory:
         self.turns.append({
             "user": user,
             "bot": bot,
-            "user_intent": user_intent,
+            # "user_intent": user_intent,
             "context_chunks": context_chunks,
             "model_name": model_name,
             "model_number": model_number,
@@ -26,13 +26,13 @@ class ChatHistory:
             "response_type": response_type,
         })
 
-    def get_recent_turns(self, limit: int = 5) -> List[Dict]:
+    def get_recent_turns(self, limit: int = 3) -> List[Dict]:
         return self.turns[-limit:]
 
     def get_all_turns(self) -> List[Dict]:
         return self.turns
     
-    def get_as_openai_format(self, limit: int = 5) -> List[Dict[str, str]]:
+    def get_as_openai_format(self, limit: int = 3) -> List[Dict[str, str]]:
         """
         Returns the last `limit` turns in OpenAI chat format.
         """

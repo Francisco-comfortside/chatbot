@@ -33,7 +33,7 @@ def extract_model_number(text: str) -> Optional[str]:
 def analyze_query(user_input: str, memory: list) -> Dict[str, Optional[str]]:
     """
     Analyzes the query and returns intent and filtering info.
-    """        
+    """     
     # Simple pre-check for error codes and model names
     model_name = extract_model_name(user_input)
     model_number = extract_model_number(user_input)
@@ -70,11 +70,7 @@ def analyze_query(user_input: str, memory: list) -> Dict[str, Optional[str]]:
     except Exception:
         parsed = {"intent": "unknown"}
 
-    print("From query_analysis.py:")
-    print("intent: ", parsed.get("intent"))
-    print("model name: ", model_name)
-    print("model number: ", model_number)
-    # Merge with pre-extracted values    
+    # Merge with pre-extracted values 
     return {
         "intent": parsed.get("intent", "unknown"),
         "model_name": model_name,

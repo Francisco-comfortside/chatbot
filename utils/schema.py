@@ -5,7 +5,6 @@ def build_filters(
     model_name: Optional[str] = None,
     model_number: Optional[str] = None,
 ) -> Optional[Dict[str, Dict[str, str]]]:
-    
     filters = {}
     if model_name:
         filters["model_name"] = {"$in": [model_name]}
